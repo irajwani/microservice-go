@@ -1,0 +1,20 @@
+services:
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    read_only: false  # required to write to /tmp
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_SESSION_TOKEN=test
+      - AWS_REGION=eu-central-1
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"  # required for some AWS services like AWS Lambda
+    security_opt:
+      - no-new-privileges:true

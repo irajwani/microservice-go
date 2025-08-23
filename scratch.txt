@@ -1,0 +1,7 @@
+aws --endpoint-url http://localhost:4566 s3 cp ../README.md s3://my-test-bucket/new.txt
+
+
+aws --endpoint-url http://localhost:4566 lambda invoke \
+  --function-name hello_go_lambda \
+  /dev/stdout
+
