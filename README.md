@@ -198,3 +198,36 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 ## License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
+
+## Development (Service Additions)
+
+### Database schema / migrations
+
+Postgres starts with an initialized volume. The first time the `postgres` container starts (empty `pgdata` volume) it executes SQL files in `db/migrations` via the standard `docker-entrypoint-initdb.d` hook. The bundled `0001_init.sql` creates core tables: `conversion_jobs`, `outbox`, `micro_orders`, and `trade_ledger` plus supporting enums & triggers.
+
+To reset the database (DANGEROUS: deletes data):
+
+```bash
+docker compose down -v
+docker compose up -d postgres
+```
+
+Add new schema changes as additional, numerically ordered SQL files (e.g. `0002_add_indexes.sql`). Avoid rewriting applied migrations; instead create forward-only ALTER statements. The earlier temporary "migrator" helper container has been removed for simplicity; apply new files manually with `psql -f` if the volume already exists.
+
+### Transactional Outbox Pattern
+
+1. In the job creation Lambda, open a DB transaction.
+2. Insert into `conversion_jobs` (respecting optional `idempotency_key` uniqueness).
+3. Insert matching row into `outbox` with a topic like `conversion-jobs` and JSON payload (e.g. the job row).
+4. Commit.
+5. A separate publisher (Lambda / worker) periodically claims unsent rows (SELECT ... FOR UPDATE SKIP LOCKED or `locked_until` predicate), sends to SQS, updates `processed_at` (and clears `locked_until`).
+
+Locking: Use `UPDATE outbox SET locked_until = now() + interval '30 seconds', locked_by = 'publisher-1' WHERE outbox_id IN ( ... ) AND (locked_until IS NULL OR locked_until < now()) RETURNING *;` to atomically claim rows without blocking.
+
+### Local Connection String
+
+```
+postgres://postgres:postgrespw@localhost:5432/jobsdb?sslmode=disable
+```
+
+Use environment variables in Lambda for host/user/password to avoid hard-coding.

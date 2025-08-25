@@ -18,3 +18,27 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"  # required for some AWS services like AWS Lambda
     security_opt:
       - no-new-privileges:true
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=jobsdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Mount migrations so they auto-run only on first init (ignored on existing volume)
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+
+
+volumes:
+  pgdata: {}
