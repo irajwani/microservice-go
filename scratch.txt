@@ -17,5 +17,15 @@ psql -U postgres -d jobsdb -c "SELECT * FROM ledger_entries ORDER BY created_at 
 psql -U postgres -d jobsdb -c "SELECT entry_type, currency, amount FROM ledger_entries ORDER BY created_at DESC LIMIT 10;"
 psql -U postgres -d jobsdb -c "SELECT user_id, currency, balance FROM accounts ORDER BY user_id, currency;"
 
-curl -s -X POST $(terraform output -raw jobs_api_invoke_url) -H 'Content-Type: application/json' -d '{"client_id":"c1","source_currency":"USD","target_currency":"EUR","source_amount":100.00}'
+# Perform exchange
+curl -s -X POST "$(terraform output -raw jobs_api_invoke_url)" \
+  -H 'Content-Type: application/json' \
+  -d '{"client_id":"c1","source_currency":"USD","target_currency":"EUR","source_amount":100}'
+
+# Get balances for user
+curl -s "http://localhost:4566/restapis/9ii3xkzxlm/dev/_user_request_/balances?user_id=c1" | jq .
+
+# Get transactions for user
+curl -s "http://localhost:4566/restapis/0umfqqrrrc/dev/_user_request_/jobs?user_id=c1&limit=10" | jq .
+
 

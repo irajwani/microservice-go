@@ -23,9 +23,14 @@ type RateResponse struct {
 }
 
 var defaultRates = map[string]RateResponse{
-	"USD:EUR": {Source: "USD", Target: "EUR", Rate: 1.15, FeeBps: 25, Provider: "mock-fx"},
-	"GBP:EUR": {Source: "GBP", Target: "EUR", Rate: 1.15, FeeBps: 25, Provider: "mock-fx"},
-	"EUR:USD": {Source: "EUR", Target: "USD", Rate: 1.08, FeeBps: 20, Provider: "mock-fx"},
+	// Aligned with client static mapping (intentionally not strict inverses):
+	//  USD:EUR 0.90  EUR:USD 1.16  USD:GBP 1.26  GBP:USD 0.79  EUR:GBP 1.16  GBP:EUR 0.90
+	"USD:EUR": {Source: "USD", Target: "EUR", Rate: 0.90, FeeBps: 30, Provider: "mock-fx"},
+	"EUR:USD": {Source: "EUR", Target: "USD", Rate: 1.16, FeeBps: 30, Provider: "mock-fx"},
+	"USD:GBP": {Source: "USD", Target: "GBP", Rate: 1.26, FeeBps: 30, Provider: "mock-fx"},
+	"GBP:USD": {Source: "GBP", Target: "USD", Rate: 0.79, FeeBps: 30, Provider: "mock-fx"},
+	"EUR:GBP": {Source: "EUR", Target: "GBP", Rate: 1.16, FeeBps: 30, Provider: "mock-fx"},
+	"GBP:EUR": {Source: "GBP", Target: "EUR", Rate: 0.90, FeeBps: 30, Provider: "mock-fx"},
 }
 
 func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {

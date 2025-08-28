@@ -1,36 +1,4 @@
-# Python and Go Lambda functions + build artifacts
-# Python lambda packaging
-# tflint-ignore: terraform_required_providers
-
-# data "archive_file" "python_zip" {
-#   type        = "zip"
-#   source_dir  = "${path.module}/lambda/"
-#   output_path = "${path.module}/lambda/lambda-trigger-sm.zip"
-# }
-
-# resource "aws_lambda_function" "upload_trigger_lambda" {
-#   # checkov:skip=CKV_AWS_117
-#   # checkov:skip=CKV_AWS_116
-#   # checkov:skip=CKV_AWS_173
-#   # checkov:skip=CKV_AWS_272
-#   # checkov:skip=CKV_AWS_115
-#   function_name = var.lambda_name
-#   handler       = "index.lambda_handler"
-#   runtime       = "python3.8"
-#   role          = aws_iam_role.lambda_execution_role.arn
-#   filename         = data.archive_file.python_zip.output_path
-#   source_code_hash = data.archive_file.python_zip.output_base64sha256
-#   timeout          = 120
-#   tracing_config { mode = "Active" }
-#   environment { variables = { SM_ARN = aws_sfn_state_machine.dynamodb_updater_workflow.arn } }
-# }
-
-# resource "aws_cloudwatch_log_group" "MyLambdaLogGroup" {
-#   # checkov:skip=CKV_AWS_338
-#   # checkov:skip=CKV_AWS_158
-#   retention_in_days = 1
-#   name              = "/aws/lambda/${aws_lambda_function.upload_trigger_lambda.function_name}"
-# }
+## Go Lambda build & functions
 
 # Go lambda build
 resource "null_resource" "build_go_lambda" {
@@ -96,6 +64,46 @@ data "archive_file" "exchange_lambda_zip" {
   source_file = "${path.module}/exchange"
   output_path = "${path.module}/exchange-lambda.zip"
   depends_on  = [null_resource.build_exchange_lambda]
+}
+
+# Build jobdetail lambda
+resource "null_resource" "build_jobdetail_lambda" {
+  triggers = { source_hash = filesha256("${path.module}/../cmd/jobdetail/main.go") }
+  provisioner "local-exec" {
+    command     = "GOOS=linux GOARCH=amd64 go build -o jobdetail ../cmd/jobdetail/main.go"
+    working_dir = path.module
+  }
+}
+
+data "archive_file" "jobdetail_lambda_zip" {
+  type        = "zip"
+  source_file = "${path.module}/jobdetail"
+  output_path = "${path.module}/jobdetail-lambda.zip"
+  depends_on  = [null_resource.build_jobdetail_lambda]
+}
+
+resource "aws_lambda_function" "jobdetail_lambda" {
+  function_name = "jobdetail_lambda"
+  handler       = "jobdetail"
+  runtime       = "go1.x"
+  role          = aws_iam_role.lambda_execution_role.arn
+  filename         = data.archive_file.jobdetail_lambda_zip.output_path
+  source_code_hash = data.archive_file.jobdetail_lambda_zip.output_base64sha256
+  timeout          = 5
+  environment {
+    variables = {
+      DB_HOST     = var.db_host
+      DB_PORT     = tostring(var.db_port)
+      DB_USER     = var.db_username
+      DB_PASSWORD = var.db_password
+      DB_NAME     = var.db_name
+    }
+  }
+}
+
+resource "aws_cloudwatch_log_group" "JobDetailLambdaLogGroup" {
+  name              = "/aws/lambda/${aws_lambda_function.jobdetail_lambda.function_name}"
+  retention_in_days = 1
 }
 
 resource "aws_lambda_function" "exchange_lambda" {
@@ -199,7 +207,6 @@ resource "aws_lambda_function" "create_job_lambda" {
   filename         = data.archive_file.go_lambda_zip.output_path
   source_code_hash = data.archive_file.go_lambda_zip.output_base64sha256
   timeout          = 10
-  #  To inherit X-Ray tracing from API Gateway, otherwise use "Active"
   tracing_config { mode = "PassThrough" }
   environment {
     variables = {

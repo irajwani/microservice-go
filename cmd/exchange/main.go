@@ -88,8 +88,7 @@ func validate(req ExchangeRequest) error {
 
 // mockRate returns rate, fee (absolute)
 func mockRate(source, target string, amount float64) (rate float64, fee float64) {
-	// Professional-ish mock: base rate table + spread tiers
-	base := map[string]float64{"USD:EUR": 1.10, "EUR:USD": 0.91, "USD:GBP": 0.79, "GBP:USD": 1.26, "EUR:GBP": 0.86, "GBP:EUR": 1.16}
+	base := map[string]float64{"USD:EUR": 0.90, "EUR:USD": 1.16, "USD:GBP": 1.26, "GBP:USD": 0.79, "EUR:GBP": 1.16, "GBP:EUR": 0.90}
 	rate = base[source+":"+target]
 	if rate == 0 {
 		rate = 1.0
