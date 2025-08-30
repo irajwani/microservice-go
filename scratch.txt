@@ -1,9 +1,6 @@
 aws --endpoint-url http://localhost:4566 s3 cp ../README.md s3://my-test-bucket/new.txt
 
-
-aws --region eu-central-1 --endpoint-url http://localhost:4566 lambda invoke \
-  --function-name hello_go_lambda \
-  /dev/stdout
+psql -U postgres -d jobsdb -c "\dt"
 
 psql -U postgres -d jobsdb -c "SELECT * FROM conversion_jobs ORDER BY created_at DESC;"
 psql -U postgres -d jobsdb -c "\\d accounts"
