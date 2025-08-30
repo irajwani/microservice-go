@@ -1,0 +1,23 @@
+{
+  "pages": {
+    "/exchange/page": [
+      "static/chunks/ecba7_next_dist_ed8b05cf._.js",
+      "static/chunks/systems_evolut_app_favicon_ico_mjs_bbbcc2e6._.js",
+      "static/chunks/[root-of-the-server]__3079e1f6._.css",
+      "static/chunks/systems_evolut_app_layout_tsx_f6074f1d._.js",
+      "static/chunks/ecba7_next_dist_client_components_builtin_global-error_983c2ec7.js",
+      "static/chunks/ecba7_a3a0b0a4._.js",
+      "static/chunks/systems_evolut_2d02f640._.js",
+      "static/chunks/systems_evolut_app_exchange_page_tsx_983c2ec7._.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_5d55a10b._.js",
+      "static/chunks/ecba7_next_dist_compiled_react-dom_3ac643d4._.js",
+      "static/chunks/ecba7_next_dist_compiled_next-devtools_index_e7e41fc3.js",
+      "static/chunks/ecba7_next_dist_compiled_2292633a._.js",
+      "static/chunks/ecba7_next_dist_client_5c3ffd2a._.js",
+      "static/chunks/ecba7_next_dist_711e0c27._.js",
+      "static/chunks/ecba7_@swc_helpers_cjs_1f93d52c._.js",
+      "static/chunks/systems_evolut_a0ff3932._.js",
+      "static/chunks/turbopack-systems_evolut_e4894c3b._.js"
+    ]
+  }
+}
