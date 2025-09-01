@@ -37,7 +37,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       # Mount migrations so they auto-run only on first init (ignored on existing volume)
-      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+      - ./migrations:/docker-entrypoint-initdb.d:ro
 
 
 volumes:
