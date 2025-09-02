@@ -30,11 +30,17 @@ const Sheet = ({ open, onOpenChange, children }: SheetProps) => {
   return createPortal(
     <div className="fixed inset-0 z-50 flex pointer-events-auto" aria-hidden={false}>
       <div
-        className="absolute inset-0 bg-background/60 dark:bg-black/70 backdrop-blur-sm opacity-100"
+        className="absolute inset-0 bg-background/40 dark:bg-black/60 backdrop-blur-md transition-opacity opacity-100"
         onClick={() => onOpenChange?.(false)}
       />
       <div
-        className="ml-auto h-full w-full sm:max-w-md bg-card border-l flex flex-col shadow-xl translate-x-0 animate-in slide-in-from-right duration-300"
+        className={cn(
+          "ml-auto h-full w-full sm:max-w-md flex flex-col translate-x-0 animate-in slide-in-from-right duration-300",
+          // Glass styling
+          "glass-primary border border-glass-border/60 shadow-none",
+          // Shape
+          "rounded-none overflow-hidden"
+        )}
         role="dialog"
         aria-modal="true"
       >
